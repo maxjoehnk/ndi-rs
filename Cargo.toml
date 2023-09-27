@@ -1,0 +1,14 @@
+[package]
+name = "ndi-client"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ndi = { path = "../ndi_rs_upstream/ndi" }
+winit = "0.28"
+color-eyre = "0.6"
+nannou = "0.18"
+nannou_egui = "0.5"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+crossbeam-utils = "0.8"
