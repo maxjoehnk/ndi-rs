@@ -1,7 +1,13 @@
 use crate::VideoSender;
-use nannou::image::{self, DynamicImage, ImageBuffer, Pixel};
+use image::{self, DynamicImage, ImageBuffer, Pixel};
 use ndi::{FourCCVideoType, FrameType, Recv, RecvColorFormat, Source, VideoData};
 use std::sync::mpsc::{Receiver, Sender};
+
+#[derive(Debug, Clone)]
+pub struct NdiSource {
+    pub name: String,
+    pub source: Source,
+}
 
 pub fn recv_ndi(video_tx: VideoSender, rx: Receiver<Source>) -> color_eyre::Result<()> {
     tracing::debug!("Setting up NDI receiver");
@@ -29,7 +35,7 @@ pub fn recv_ndi(video_tx: VideoSender, rx: Receiver<Source>) -> color_eyre::Resu
     }
 }
 
-pub fn discover_sources(sender: Sender<Vec<Source>>) -> color_eyre::Result<()> {
+pub fn discover_sources(sender: Sender<Vec<NdiSource>>) -> color_eyre::Result<()> {
     tracing::debug!("Setting up NDI finder");
     let find = ndi::find::FindBuilder::new().build()?;
 
@@ -38,6 +44,14 @@ pub fn discover_sources(sender: Sender<Vec<Source>>) -> color_eyre::Result<()> {
         let sources = find.current_sources(u128::MAX)?;
 
         tracing::info!("Found NDI sources: {sources:?}");
+
+        let sources = sources
+            .into_iter()
+            .map(|source| NdiSource {
+                name: source.get_name(),
+                source,
+            })
+            .collect::<Vec<_>>();
 
         sender.send(sources)?;
 
@@ -63,10 +77,10 @@ fn recv_ndi_frame(recv: &Recv) -> color_eyre::Result<DynamicImage> {
                         decode::<image::Rgba<u8>>(frame, video_data)
                             .map(DynamicImage::ImageRgba8)?
                     }
-                    FourCCVideoType::BGRA | FourCCVideoType::BGRX => {
-                        decode::<image::Bgra<u8>>(frame, video_data)
-                            .map(DynamicImage::ImageBgra8)?
-                    }
+                    // FourCCVideoType::BGRA | FourCCVideoType::BGRX => {
+                    //     decode::<image::Bgra<u8>>(frame, video_data)
+                    //         .map(DynamicImage::ImageBgra8)?
+                    // }
                     video_type => color_eyre::eyre::bail!("Unsupported video type: {video_type:?}"),
                 };
 
