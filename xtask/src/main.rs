@@ -12,6 +12,9 @@ fn run_bindgen() {
     #[cfg(target_os = "linux")]
     let headers = "ndi/thirdparty/Linux/Include";
 
+    #[cfg(target_os = "macos")]
+    let headers = "ndi/thirdparty/Macos/Include";
+
     let bindings = bindgen::Builder::default()
         // The input header we would like to generate
         // bindings for.
@@ -32,6 +35,9 @@ fn run_bindgen() {
 
     #[cfg(target_os = "linux")]
     binding_path.push("bindings_linux.rs");
+
+    #[cfg(target_os = "macos")]
+    binding_path.push("bindings_macos.rs");
 
     bindings
         .write_to_file(binding_path)
