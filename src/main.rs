@@ -68,6 +68,7 @@ async fn main() -> color_eyre::Result<()> {
                         {
                             control_flow.set_exit();
                         }
+                        WindowEvent::Resized(size) => screen.image_renderer.resize(&model.device, size.width, size.height),
                         _ => {}
                     }
                     // screen.egui.handle_event(event);
@@ -120,9 +121,13 @@ impl Model {
                     continue;
                 }
             }
-            let window = WindowBuilder::new()
+            let window = if let Ok(window) = WindowBuilder::new()
                 .with_fullscreen(Some(Fullscreen::Borderless(Some(monitor.clone()))))
-                .build(event_loop)?;
+                .build(event_loop) {
+                window
+            }else {
+                WindowBuilder::new().build(event_loop)?
+            };
 
             window.set_title(&format!(
                 "NDI Client {}",
@@ -205,7 +210,7 @@ impl Model {
                 selected_source: None,
                 selected_source_send: selected_source_tx,
                 window,
-                image_renderer: WgpuImageRenderer::new(&device, surface, (1920, 1080))?,
+                image_renderer: WgpuImageRenderer::new(&device, surface, config, (1920, 1080))?,
                 monitor,
                 fullscreen: false,
             };

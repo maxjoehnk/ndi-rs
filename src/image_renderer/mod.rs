@@ -31,6 +31,7 @@ pub struct WgpuImageRenderer {
     pipeline: wgpu::RenderPipeline,
     vertex_buffer: wgpu::Buffer,
     index_buffer: wgpu::Buffer,
+    surface_config: wgpu::SurfaceConfiguration,
     surface: wgpu::Surface,
 }
 
@@ -38,6 +39,7 @@ impl WgpuImageRenderer {
     pub fn new(
         device: &wgpu::Device,
         surface: wgpu::Surface,
+        surface_config: wgpu::SurfaceConfiguration,
         estimated_size: (u32, u32),
     ) -> color_eyre::Result<Self> {
         let texture = Texture::new(device, estimated_size)?;
@@ -101,6 +103,7 @@ impl WgpuImageRenderer {
             vertex_buffer,
             index_buffer,
             surface,
+            surface_config,
         })
     }
 
@@ -146,5 +149,11 @@ impl WgpuImageRenderer {
         texture.present();
 
         Ok(())
+    }
+
+    pub fn resize(&mut self, device: &wgpu::Device, width: u32, height: u32) {
+        self.surface_config.width = width;
+        self.surface_config.height = height;
+        self.surface.configure(device, &self.surface_config);
     }
 }
