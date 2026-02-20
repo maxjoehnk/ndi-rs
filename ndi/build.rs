@@ -61,8 +61,8 @@ fn linux_link_and_load() {
         "arm" => lib_path.push("arm-linux-gnu"),
         _ => panic!("Unsupported architecture for NDI"),
     }
-    let src = lib_path.join("libndi.so.5");
-    let dst = Path::join(&out_path, "libndi.so.5");
+    let src = lib_path.join("libndi.so.6");
+    let dst = Path::join(&out_path, "libndi.so.6");
     std::fs::copy(src, dst).unwrap();
 }
 
